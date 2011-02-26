@@ -1,0 +1,209 @@
+{% extends pack.base.template %}
+{% load markup %}
+{% load utils %}
+
+{% block favicon %}
+	{% if files.favicon %}
+		<link rel="icon" href="{{ files.favicon.get_file }}" type="image/x-icon" />
+		<link rel="shortcut icon" href="{{ files.favicon.get_file }}" type="image/x-icon" />
+	{% else %}
+		{{ block.super }}
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="title">
+	<h2>{{item.name}}</h2>
+	<div class="main-bubble hide">
+		<div>
+			{{ page.dic.description|textile }}
+			<a href="#" class="close">close</a>
+		</div>
+	</div>
+	<div class="item-desc hide">
+		{% if page.template == 'item' %}
+			{% firstof page.dic.description "..." %}
+		{% else %}
+			...
+		{% endif %}
+	</div>
+</div>
+<div class="item-name">Thinking...</div>
+<div id="jp_interface_1" class="jp-interface">
+    <a href="#" class="jp-next">next</a> |
+    <a href="#" class="jp-prev">prev</a> |
+    <a href="#" class="jp-toggle">pause</a>
+</div>
+
+<div class="item_wrap">
+	<img alt="">
+	<img alt="">
+</div>
+<div id="business-email-wrap" class="hide">{{ portfolio.dic.email|obfuscate}}</div>
+<div id="jquery_jplayer_1" class="jp-jplayer"></div>
+{% endblock %}
+
+{% block beforeBodyEnd %}
+{{ block.super }}
+<script type="text/javascript" src="{{ pack.jplayerjs.get_file }}"></script>
+<script type="text/javascript">
+	// History
+	if(window.location.hash && window.location.hash!='#!'+window.location.path) {window.location = window.location.hash.replace('#!','');}
+	else {
+		// Player
+		var playlist = [];
+		var activeTrack = 0;
+		{% for file in portfolio.files_my %}
+		{% if file.extension == ".mp3" %}
+		playlist.push({'file': '{{ file.get_file|escapejs }}', 'name': '{{ file.name|escapejs }}'});
+		{% endif %}
+		{% endfor %}
+		if(playlist.length)
+		{
+			var jplayerPlay = function() {
+				$('#jquery_jplayer_1').jPlayer("setMedia",{ 'mp3': playlist[activeTrack]['file']}).jPlayer("play");
+				$('.item-name').text(playlist[activeTrack]['name'])
+			};
+			var playNext = function() {
+				if(activeTrack==playlist.length-1) activeTrack=0;
+				else activeTrack++;
+				jplayerPlay();
+				return false;
+			};
+			$('.jp-next').click(playNext);
+			$('.jp-prev').click(function() {
+				if(activeTrack==0) activeTrack=playlist.length-1;
+				else activeTrack--;
+				jplayerPlay();
+				return false;
+			});
+			$('.jp-toggle').toggle(function() {
+				$('#jquery_jplayer_1').jPlayer('pause');
+				$(this).text('play');
+			}, function() {
+				$('#jquery_jplayer_1').jPlayer('play');
+				$(this).text('pause');
+			});
+			$('#jquery_jplayer_1').jPlayer( {
+				swfPath: "{{ pack.jplayer.get_file|replace:"/Jplayer.swf/" }}",
+				cssSelectorAncestor: '#jp_interface_1',
+				ready: jplayerPlay,
+				ended: playNext
+			});
+		}
+
+		$('.business-email').val($('#business-email-wrap a').attr('href').replace('mailto:',''));
+
+		{% if items %}
+		$('.buy-link').live('click', function() {$(this).parents('form').submit()});
+		// Sort randomly photos array
+		function randOrd(){return (Math.round(Math.random())-0.5); }
+		var photos = [];
+		var photosMap = {};
+		var active = 0;
+		{% for i in items %}
+		photos.push({'name': '{{ i.name|escapejs }}', 'url': '{{ i.url|escapejs }}', 'description': '{% if i.dic.description %}{{ i.dic.description|escapejs }}{% else %}...{% endif %}', 'img': '{{ i.files.0|thumb:"1280x0" }}'});
+		{% endfor %}
+		photos.sort( randOrd );
+		{% if page.template == 'item' %}
+		for(active in photos)
+		{
+			if(photos[active].img == '{{ page.files.0|thumb:"1280x0" }}')
+				break;
+		}
+		{% endif %}
+
+		// Resize photo to window size
+		var imgs = $('.item_wrap img');
+		var resize = function() {
+			var screenSizeW = $(window).width();
+			var screenSizeH = $(window).height();
+			var img = new Image();
+			img.src = $(imgs[reloads % 2 ? 0 : 1]).attr('src');
+			var width = img.width;
+			var height = img.height;
+			if (screenSizeW / screenSizeH >= width / height)
+			{
+				var new_height = height * screenSizeW / width;
+				$(imgs[reloads % 2 ? 0 : 1]).css({'width': screenSizeW, 'height': new_height, 'left': 0, 'top': (screenSizeH-new_height)/2});
+			}
+			else
+			{
+				var new_width = width * screenSizeH / height;
+				$(imgs[reloads % 2 ? 0 : 1]).css({'width': new_width, 'height': screenSizeH, 'left': (screenSizeW-new_width)/2, 'top': 0});
+			}
+		};
+		$(window).resize(resize);
+
+		$('.order').toggle(function() {
+			$('.buy-form').text('Thinking...');
+			$('.buy-forms').show().load(photos[active].url + ' .buy-forms>*', function() {
+				$('.business-email').val($('#business-email-wrap a').attr('href').replace('mailto:',''));
+			});
+		}, function() {$('.buy-forms').hide();});
+
+		$('#navigation a.hcatalog').click(function() {$(this).parent().find('.sub-navigation').toggle(); return false;});
+		$('h2').click(function() {$('.item-desc').toggle(); return false;});
+
+		var reloads = 0;
+		var loadActiveImg = function() {
+			if($('.buy-forms').css('display')=='block') $('.order').trigger('click');
+			// If we are going back to the same image - just show it (because WebKit will not fire the onLoad event even though we touch the src)
+			if($(imgs[reloads % 2 ? 1 : 0]).attr('src') == photos[active].img)
+				$(imgs[reloads % 2 ? 1 : 0]).trigger('load');
+			else $(imgs[reloads % 2 ? 1 : 0]).hide().attr('src', photos[active].img);
+
+			$(imgs[reloads % 2 ? 0 : 1]).fadeOut();
+			reloads++;
+			return false;
+		};
+		$('.item_wrap img').click(function() {
+			active++;
+			if(active>=photos.length) active=0;
+			return loadActiveImg();
+		});
+
+		// When image is loaded - fade it in
+		// Also load the first image
+		var timer;
+		var onImageLoad = function() {
+			resize();
+			$(this).fadeIn();
+			clearTimeout(timer);
+			timer = setTimeout(function() { loadNextImage(); }, 30000);
+		};
+		$('.item_wrap img').load(onImageLoad);
+		loadActiveImg();
+
+		// Preloading
+		var preload_index = active;
+		var preload_index_max = active;
+		var onPreload = function() {
+			preload_index++;
+			if(preload_index>=photos.length) preload_index=0;
+			if(preload_index!=preload_index_max)
+			{
+				var img = $('<img />');
+				$(img).load(onPreload).attr('src', photos[preload_index].img);
+				img.append('body');
+			}
+		};
+		var img = new Image();
+		$(img).load(onPreload).attr('src', photos[preload_index].img);
+		{% endif %}
+
+		// About pages
+		$('#navigation .about').toggle(function() {
+			$('.main-bubble').text('Thinking...').show().load($(this).attr('href') + ' .main-bubble>*');
+			return false;
+		}, function() {
+			$('.main-bubble').hide();
+		});
+
+		$('a.close').live('click', function() {
+			$('.main-bubble').hide();
+			return false;
+		});
+	}
+</script>
+{% endblock %}

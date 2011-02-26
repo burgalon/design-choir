@@ -1,0 +1,78 @@
+/** Reset **/
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+body {line-height: 1.5; }
+
+html { font-size:100.01%; }
+body {
+  font-size: 22px;
+  color: #cdcdcb;
+  background: #fff;
+  font-family: Arial;
+  line-height: 1;
+}
+
+ul {list-style: none;}
+
+p {margin: 0 0 1.5em;}
+
+/*for FireFox*/
+:focus {outline:none;} ::-moz-focus-inner {border:0;}
+
+/*for IE8 */
+input[type="submit"]:focus, input[type="button"]:focus
+{
+	outline : none;
+}
+
+/*** Now let's get specific **/
+body {overflow: hidden;}
+a {color: #ddd; text-decoration: none;}
+a:hover {color: #fff;}
+.hide {display: none;}
+
+h1 a, .main-bubble, .item-desc, .greeting, h2, .item-name, .jp-interface, #navigation ul li a, #navigation ul li span, .order, .buy-forms .buy-form {float: left; clear: left; background: #9f931b; margin: 0 10px 0 30px; padding: 1px 6px 5px 2px; text-transform: lowercase; opacity: 0.80;}
+#navigation .home {display: none; }
+#navigation ul li a, #navigation ul li span {text-transform: lowercase;}
+#navigation ul li a:hover, #navigation ul li span:hover {}
+#navigation ul li .sub-navigation a, .buy-forms .buy-form {clear: none; margin: 0; padding-left: 5px;}
+.sub-navigation a {margin-left: 10px !important;}
+
+h1 a { margin-top: 50px; margin-bottom: 30px; text-transform:none; }
+h2 {cursor: pointer;}
+h2:hover {color: #fff;}
+h2 {display: none;}
+
+.item-prev {bottom: 80px; }
+
+.buy-link {cursor: pointer;}
+.buy-link:hover {}
+.buy-link .price {visibility: hidden; font-size: 0.8em; }
+.buy-link:hover .price {visibility: visible;}
+
+.jp-interface {background: #9f931b;}
+.item_wrap img {width: 1280px; position: absolute; top: 0; z-index: -1; display: none;}
+
+h3 {margin: .7em 0; }
+.item-desc, .main-bubble {width: 500px; position: absolute; top: 98px; left: 200px; opacity: 0.85; font-size: 0.8em; padding: 10px;}
+.main-bubble a.close {float: right; margin-top: 2em;}
+.main-bubble a.close:hover {background: #9f931b; }
+
+.jp-interface {position: absolute; bottom: 50px;}
+.item-name {position: absolute; bottom: 78px;}
+
+#footer {display: none;}

@@ -1,0 +1,22 @@
+{% extends "site/base.html" %}
+{% load utils %}
+
+{% block css %}
+{% endblock %}
+
+{% block nav %}
+    <ul>
+    {% for i in portfolio.pages_navigation %}
+        <li>
+			<a class="{{ i.slug_name }} {{ i.template }}" href="{{ i.url }}">{{ i.name }}</a>
+			{% if i.pages %}
+			<div class="sub-navigation hide">
+				{% for x in i.pages %}
+				<a href="{{ x.url }}" title="{{ x.sub_title }}">{{ x.name }}</a>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
